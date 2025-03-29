@@ -44,6 +44,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/dashboard", isAuthenticated, async (req, res, next) => {
     try {
       const userId = req.user?.id;
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
       const dashboardData = await storage.getUserDashboardSummary(userId);
       res.json(dashboardData);
     } catch (error) {
@@ -55,6 +58,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/transactions", isAuthenticated, async (req, res, next) => {
     try {
       const userId = req.user?.id;
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
       const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
       const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
       

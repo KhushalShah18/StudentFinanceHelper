@@ -2,66 +2,136 @@
 
 A comprehensive financial management platform designed specifically for international students, leveraging Azure services to provide seamless expense tracking, budgeting, and collaborative financial planning.
 
-## Deployment to Azure Web App with Custom Domain
+## Simplified Azure Deployment Instructions
 
-### Prerequisites
-1. An Azure subscription
-2. Azure CLI installed (for command-line deployment)
-3. A custom domain that you own
-4. Node.js 20.x installed
+We've created a simplified deployment method specifically for Azure Web App that bypasses many common deployment issues.
 
-### Configuration Files
-This repository includes several files to help with Azure deployment:
-- `.deployment` - Basic deployment command configuration
-- `web.config` - IIS configuration for hosting Node.js applications
-- `azure-settings.json` - Sample application settings
+### Method 1: Using the Deployment Script (Recommended)
 
-### Steps to Deploy with Custom Domain
-
-1. **Create an Azure Web App**
-   ```
-   az webapp create --resource-group <YourResourceGroup> --plan <YourAppServicePlan> --name SmartSpend --runtime "NODE|20-lts"
+1. **Run the deployment preparation script**
+   ```bash
+   # Make the script executable
+   chmod +x deploy-to-azure.sh
+   
+   # Run the script
+   ./deploy-to-azure.sh
    ```
 
-2. **Configure App Settings**
-   ```
-   az webapp config appsettings set --resource-group <YourResourceGroup> --name SmartSpend --settings @azure-settings.json
+2. **Deploy the generated package to Azure**
+   - A new folder named `azure-deploy` will be created containing the minimal files needed
+   - You can deploy this folder directly to your Azure Web App using any of these methods:
+     - Azure Portal → Web App → "Deployment Center" → "FTP" (upload the contents)
+     - Azure CLI with zip deployment
+     - Azure Portal → Web App → "Advanced Tools" (Kudu) → "Zip Deploy"
+
+3. **Configure environment variables in Azure Portal**
+   - In your Web App, go to "Configuration" → "Application settings"
+   - Add the following settings:
+     ```
+     NODE_ENV = production
+     SESSION_SECRET = [generate a secure random string]
+     DATABASE_URL = [your PostgreSQL connection string]
+     AZURE_STORAGE_CONNECTION_STRING = [your Azure Storage connection string]
+     REDIS_CONNECTION_STRING = [your Redis connection string]
+     ```
+
+4. **Verify the deployment**
+   - Visit your Azure Web App URL (https://[your-app-name].azurewebsites.net)
+   - You should see a placeholder page confirming successful deployment
+   - Check the API health endpoint at /api/health
+
+### Method 2: Manual Configuration
+
+1. **Create a new Azure Web App**
+   - Go to the Azure Portal
+   - Create a new Web App with Node.js 20
+   - Choose Windows OS for best compatibility with our approach
+
+2. **Prepare your files for deployment**
+   Copy these key files:
+   - `app.js` - Standalone server for Azure
+   - `azure-package.json` (rename to `package.json`) - Simplified package manifest
+   - `web.config` - IIS configuration
+   - `.deployment` - Azure deployment settings
+
+3. **Upload files through FTP or Kudu console**
+   - Access your Kudu console at https://[your-app-name].scm.azurewebsites.net
+   - Navigate to the wwwroot folder
+   - Upload the above files
+   - Create a `client/dist` folder and add your built frontend files
+
+4. **Set environment variables**
+   Same as in Method 1, step 3
+
+### Method 3: Deploy with Full Source Code (Advanced)
+
+If you need to deploy the complete application with full functionality:
+
+1. **Build the frontend locally**
+   ```bash
+   # Install dependencies
+   npm install
+   
+   # Build frontend
+   npm run build
    ```
 
-3. **Deploy the Application**
-   ```
-   az webapp deployment source config-local-git --resource-group <YourResourceGroup> --name SmartSpend
-   ```
+2. **Create a deployment package**
+   - Copy the `client/dist` folder (built frontend)
+   - Include the server files (specifically `app.js`)
+   - Include the necessary configuration files (web.config, .deployment)
+   - Use `azure-package.json` as your package.json
 
-4. **Add your Custom Domain**
-   ```
-   az webapp domain add --resource-group <YourResourceGroup> --webapp-name SmartSpend --hostname <YourCustomDomain>
-   ```
-
-5. **Set up SSL Binding**
-   ```
-   az webapp config ssl bind --resource-group <YourResourceGroup> --name SmartSpend --certificate-thumbprint <YourCertThumbprint> --ssl-type SNI
-   ```
-
-### Manual Deployment Steps
-1. In the Azure Portal, navigate to your Web App
-2. Go to "Deployment Center" 
-3. Choose your preferred deployment method (GitHub, Azure Repos, etc.)
-4. Follow the prompts to connect and deploy
-
-### Environment Variables
-Make sure to configure these environment variables in Azure App Service:
-- `DATABASE_URL` - PostgreSQL connection string
-- `AZURE_STORAGE_CONNECTION_STRING` - Azure Storage connection string
-- `REDIS_CONNECTION_STRING` - Redis cache connection string
-- `PORT` - Default is 8181, usually auto-assigned by Azure
-- `NODE_ENV` - Set to 'production'
+3. **Deploy to Azure**
+   - Use the Azure Web App deployment options (Git, ZIP, FTP, etc.)
+   - Configure environment variables as shown above
 
 ### Custom Domain Configuration
-1. In Azure Portal, go to your Web App → Custom domains
-2. Follow the instructions to configure DNS records
-3. Add your custom domain and validate ownership
-4. Create/import an SSL certificate and bind it to your domain
+
+1. **In Azure Portal, go to your Web App**
+   - Navigate to "Custom domains"
+   - Click "Add custom domain"
+
+2. **Configure DNS Settings**
+   - Add an A record pointing to your Web App's IP address
+   - Add a TXT record for domain verification
+   - Follow the prompts in Azure Portal
+
+3. **Add SSL Certificate**
+   - In Custom domains section, select your domain
+   - Click "Add binding" to create a free Azure-managed certificate
+   - Or import your own certificate
+
+### Troubleshooting Azure Deployment
+
+#### Common Issues and Fixes
+
+1. **Application Won't Start**
+   - Check logs in Azure Portal → "Monitoring" → "Log stream"
+   - Verify environment variables are set
+   - Check "iisnode" folder in Kudu console for detailed logs
+
+2. **Missing Dependencies**
+   - Make sure you're using the correct package.json (use azure-package.json)
+   - In Kudu console, run `npm install` in the wwwroot directory
+
+3. **Static Content Not Loading**
+   - Verify client/dist folder exists with your built files
+   - Check web.config for correct static content rules
+
+4. **Configuration Issues**
+   - Double-check web.config for correct paths
+   - Verify app.js is in the root directory
+
+5. **Database Connection Errors**
+   - Make sure DATABASE_URL is correct
+   - Add Azure Web App IP to your database firewall rules
+   - Test connection string locally first
+
+#### Using Kudu for Advanced Troubleshooting
+1. Go to https://[your-app-name].scm.azurewebsites.net
+2. Use "Debug Console" to browse files and check logs
+3. Check for error logs in LogFiles/Application and iisnode folders
 
 ## Features
 - Expense tracking and categorization
