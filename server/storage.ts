@@ -31,7 +31,7 @@ const MemoryStore = createMemoryStore(session);
 
 export interface IStorage {
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 
   // User methods
   getUser(id: number): Promise<User | undefined>;
@@ -86,7 +86,7 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 
   constructor() {
     // Use memory store for development, in production should use Redis
@@ -118,25 +118,26 @@ export class DatabaseStorage implements IStorage {
 
   // Category methods
   async getCategories(): Promise<Category[]> {
-    const redisClient = getRedisClient();
+    // Import the caching functions directly
+    const { getCachedData, cacheData } = await import('./redis-cache');
     const cacheKey = "all-categories";
     
     try {
       // Try to get from cache first
-      const cachedData = await redisClient.get(cacheKey);
+      const cachedData = await getCachedData<Category[]>(cacheKey);
       if (cachedData) {
-        return JSON.parse(cachedData);
+        return cachedData;
       }
       
       // If not in cache, get from database
       const result = await db.select().from(categories);
       
       // Store in cache for 1 hour
-      await redisClient.set(cacheKey, JSON.stringify(result), { EX: 3600 });
+      await cacheData(cacheKey, result, 3600);
       
       return result;
     } catch (error) {
-      console.error("Redis error, falling back to database:", error);
+      console.error("Cache error, falling back to database:", error);
       return await db.select().from(categories);
     }
   }
@@ -151,10 +152,10 @@ export class DatabaseStorage implements IStorage {
     
     // Invalidate the categories cache
     try {
-      const redisClient = getRedisClient();
-      await redisClient.del("all-categories");
+      const { invalidateCache } = await import('./redis-cache');
+      await invalidateCache("all-categories");
     } catch (error) {
-      console.error("Redis error:", error);
+      console.error("Cache invalidation error:", error);
     }
     
     return newCategory;
