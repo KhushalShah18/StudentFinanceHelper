@@ -89,10 +89,21 @@ export class DatabaseStorage implements IStorage {
   sessionStore: session.Store;
 
   constructor() {
-    // Use memory store for development, in production should use Redis
-    this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000, // prune expired entries every 24h
-    });
+    if (process.env.NODE_ENV === 'production') {
+      // Use PostgreSQL for session storage in production
+      const connectPgSimple = require('connect-pg-simple');
+      const PgStore = connectPgSimple(session);
+      
+      this.sessionStore = new PgStore({
+        conString: process.env.DATABASE_URL,
+        createTableIfMissing: true
+      });
+    } else {
+      // Use memory store for development
+      this.sessionStore = new MemoryStore({
+        checkPeriod: 86400000, // prune expired entries every 24h
+      });
+    }
   }
 
   // User methods
