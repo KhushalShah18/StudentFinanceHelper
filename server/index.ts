@@ -2,9 +2,52 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
+// Check and log environment configuration for deployment
+if (process.env.NODE_ENV === 'production') {
+  console.log('Starting SmartSpend in production mode...');
+  
+  // Log important environment variables (without their values for security)
+  console.log('Environment check:');
+  [
+    'PORT',
+    'NODE_ENV', 
+    'DATABASE_URL', 
+    'AZURE_STORAGE_CONNECTION_STRING', 
+    'REDIS_CONNECTION_STRING'
+  ].forEach(key => {
+    console.log(`- ${key}: ${process.env[key] ? 'Set' : 'Not set'}`);
+  });
+}
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Configure CORS for API requests from custom domain
+app.use((req, res, next) => {
+  // Allow any origin in development
+  const allowedOrigins = process.env.NODE_ENV === 'production' 
+    ? [req.headers.origin || ''] // In production, only allow the specific origin
+    : ['*'];
+    
+  const origin = req.headers.origin;
+  
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (allowedOrigins.includes('*')) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+  
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  
+  next();
+});
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -56,15 +99,14 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
+  // Serve the app on the specified port or fallback to 8181 for Azure Web App
+  // this serves both the API and the client
+  const port = process.env.PORT || 8181;
   server.listen({
     port,
     host: "0.0.0.0",
     reusePort: true,
   }, () => {
-    log(`serving on port ${port}`);
+    log(`Now listening on: http://0.0.0.0:${port}`);
   });
 })();

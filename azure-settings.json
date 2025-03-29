@@ -1,0 +1,20 @@
+{
+  "name": "SmartSpend",
+  "appSettings": [
+    {
+      "name": "PORT",
+      "value": "8181",
+      "slotSetting": false
+    },
+    {
+      "name": "NODE_ENV",
+      "value": "production",
+      "slotSetting": false
+    },
+    {
+      "name": "WEBSITE_NODE_DEFAULT_VERSION",
+      "value": "~20",
+      "slotSetting": false
+    }
+  ]
+}
