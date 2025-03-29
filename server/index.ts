@@ -101,7 +101,7 @@ app.use((req, res, next) => {
 
   // Serve the app on the specified port or fallback to 8181 for Azure Web App
   // this serves both the API and the client
-  const port = process.env.PORT || 8080;
+  const port = process.env.PORT || 8181;
   server.listen({
     port,
     host: "20.48.204.10",
