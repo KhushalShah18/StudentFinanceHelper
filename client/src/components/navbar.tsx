@@ -37,7 +37,7 @@ export function Navbar({ title }: { title: string }) {
           >
             <Menu className="h-6 w-6" />
           </Button>
-          <h1 className="text-xl font-medium">FinanceHub</h1>
+          <h1 className="text-xl font-medium">SmartSpend</h1>
           <div className="relative">
             <Button variant="ghost" size="icon" className="text-white focus:outline-none">
               <Bell className="h-6 w-6" />

@@ -91,7 +91,7 @@ export default function AuthPage() {
       {/* Left side - Auth forms */}
       <div className="w-full md:w-1/2 p-8 md:p-16 flex flex-col justify-center">
         <div className="mb-8 text-center md:text-left">
-          <h1 className="text-3xl font-bold text-primary">FinanceHub</h1>
+          <h1 className="text-3xl font-bold text-primary">SmartSpend</h1>
           <p className="text-gray-500 mt-1">For International Students</p>
         </div>
 
@@ -269,7 +269,7 @@ export default function AuthPage() {
         <div className="h-full flex flex-col justify-center">
           <h2 className="text-4xl font-bold mb-6">Manage your finances with ease</h2>
           <p className="text-lg opacity-90 mb-8">
-            FinanceHub helps international students track expenses, set budgets, and discover financial tips in a new country.
+            SmartSpend helps international students track expenses, set budgets, and discover financial tips in a new country.
           </p>
           
           <div className="space-y-4">

@@ -28,7 +28,7 @@ export function Sidebar() {
   return (
     <aside className="bg-white shadow-md flex flex-col w-64 fixed inset-y-0 left-0 z-10 transform transition-transform duration-300 ease-in-out">
       <div className="p-4 bg-primary text-white">
-        <h1 className="text-xl font-medium">FinanceHub</h1>
+        <h1 className="text-xl font-medium">SmartSpend</h1>
         <p className="text-sm opacity-80">For International Students</p>
       </div>
       <div className="flex flex-col flex-grow p-4 overflow-y-auto">
