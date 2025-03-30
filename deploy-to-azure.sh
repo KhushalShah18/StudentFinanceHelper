@@ -25,73 +25,9 @@ cp azure-package.json $DEPLOY_DIR/package.json
 echo "Creating directory structure..."
 mkdir -p $DEPLOY_DIR/client/dist
 
-# Create a simple index.html to test deployment
-echo "Creating a placeholder index.html..."
-cat > $DEPLOY_DIR/client/dist/index.html << EOF
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SmartSpend</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      max-width: 650px;
-      margin: 0 auto;
-      padding: 40px 20px;
-      line-height: 1.6;
-      color: #333;
-    }
-    h1 {
-      color: #0070f3;
-      margin-bottom: 0.5rem;
-    }
-    p {
-      margin: 1rem 0;
-    }
-    .card {
-      border-radius: 8px;
-      border: 1px solid #eaeaea;
-      padding: 20px;
-      margin: 20px 0;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-  </style>
-</head>
-<body>
-  <h1>SmartSpend Deployment Successful</h1>
-  <p>If you're seeing this page, your Azure deployment was successful! This is a placeholder page.</p>
-  
-  <div class="card">
-    <h2>Next Steps</h2>
-    <p>Replace this static content with your built application frontend:</p>
-    <ol>
-      <li>Build your front-end application locally</li>
-      <li>Upload the built files to the 'client/dist' directory on your Azure Web App</li>
-      <li>Test your full application</li>
-    </ol>
-  </div>
-  
-  <div class="card">
-    <h2>API Health Check</h2>
-    <p>Your API is <span id="api-status">checking...</span></p>
-    <script>
-      fetch('/api/health')
-        .then(response => response.json())
-        .then(data => {
-          document.getElementById('api-status').textContent = 'running (' + data.time + ')';
-          document.getElementById('api-status').style.color = 'green';
-        })
-        .catch(err => {
-          document.getElementById('api-status').textContent = 'not available';
-          document.getElementById('api-status').style.color = 'red';
-        });
-    </script>
-  </div>
-</body>
-</html>
-EOF
+# Copy our custom static files instead of using a placeholder
+echo "Copying custom static files..."
+cp -r client/dist/* $DEPLOY_DIR/client/dist/
 
 # Create a ZIP file for easy deployment
 DEPLOY_ZIP="smartspend-azure-deploy.zip"
