@@ -31,47 +31,294 @@ const staticDir = path.join(__dirname, 'client', 'dist');
 if (!fs.existsSync(staticDir)) {
   console.log('Static directory not found, creating...');
   fs.mkdirSync(staticDir, { recursive: true });
-  
-  // Create a simple placeholder
-  const indexPath = path.join(staticDir, 'index.html');
-  if (!fs.existsSync(indexPath)) {
-    const placeholder = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>SmartSpend</title>
-          <style>
-            body { font-family: -apple-system, sans-serif; max-width: 650px; margin: 40px auto; padding: 0 20px; line-height: 1.6; }
-            h1 { color: #0070f3; }
-            .card { border-radius: 8px; border: 1px solid #eaeaea; padding: 20px; margin: 20px 0; }
-          </style>
-        </head>
-        <body>
-          <h1>SmartSpend - Deployment Test</h1>
-          <p>This is a placeholder page. Your application static files should be placed in the client/dist directory.</p>
-          <div class="card">
-            <h2>API Health Check</h2>
-            <p>Your API is <span id="status">checking...</span></p>
-            <script>
-              fetch('/api/health')
-                .then(res => res.json())
-                .then(data => {
-                  document.getElementById('status').textContent = 'running (' + data.time + ')';
-                  document.getElementById('status').style.color = 'green';
-                })
-                .catch(() => {
-                  document.getElementById('status').textContent = 'not available';
-                  document.getElementById('status').style.color = 'red';
-                });
-            </script>
-          </div>
-        </body>
-      </html>
-    `;
-    fs.writeFileSync(indexPath, placeholder);
-    console.log('Created placeholder index.html');
-  }
 }
+
+// Create or ensure our custom files exist
+const indexPath = path.join(staticDir, 'index.html');
+const cssPath = path.join(staticDir, 'styles.css');
+const faviconPath = path.join(staticDir, 'favicon.svg');
+
+// Log which static files are found
+console.log('Checking static files:');
+console.log('- index.html:', fs.existsSync(indexPath) ? 'Found' : 'Not found');
+console.log('- styles.css:', fs.existsSync(cssPath) ? 'Found' : 'Not found');
+console.log('- favicon.svg:', fs.existsSync(faviconPath) ? 'Found' : 'Not found');
+
+// Create index.html if it doesn't exist
+if (!fs.existsSync(indexPath)) {
+    const indexHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartSpend - Financial Management for International Students</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+  <style>
+    .card {
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .animate-pulse {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: .7;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <nav class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex">
+          <div class="flex-shrink-0 flex items-center">
+            <h1 class="text-xl font-bold text-blue-600">SmartSpend</h1>
+          </div>
+          <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+            <a href="#" class="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+              Dashboard
+            </a>
+            <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+              Expenses
+            </a>
+            <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+              Budget
+            </a>
+            <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+              Community
+            </a>
+          </div>
+        </div>
+        <div class="hidden sm:ml-6 sm:flex sm:items-center">
+          <button class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <span class="sr-only">View notifications</span>
+            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+          </button>
+          <div class="ml-3 relative">
+            <div>
+              <button type="button" class="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                <span class="sr-only">Open user menu</span>
+                <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                  <span class="text-blue-600 font-medium">JS</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <!-- Welcome Banner -->
+      <div class="bg-gradient text-white rounded-lg px-6 py-8 mb-6">
+        <h2 class="text-2xl font-bold mb-2">Welcome to SmartSpend</h2>
+        <p class="mb-4">Your personal finance management tool designed for international students</p>
+        <div class="flex items-center">
+          <span id="api-status" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white text-blue-600">
+            Checking connection...
+          </span>
+        </div>
+      </div>
+
+      <!-- Dashboard Overview -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <!-- Total Balance -->
+        <div class="bg-white rounded-lg shadow p-6 card">
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Total Balance</h3>
+          <p class="text-3xl font-bold text-blue-600">$2,450.00</p>
+          <p class="text-sm text-gray-500 mt-1">Updated today</p>
+        </div>
+        
+        <!-- Monthly Expenses -->
+        <div class="bg-white rounded-lg shadow p-6 card">
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Monthly Expenses</h3>
+          <p class="text-3xl font-bold text-red-500">$1,240.00</p>
+          <p class="text-sm text-gray-500 mt-1">March 2025</p>
+        </div>
+        
+        <!-- Monthly Income -->
+        <div class="bg-white rounded-lg shadow p-6 card">
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Monthly Income</h3>
+          <p class="text-3xl font-bold text-green-500">$3,500.00</p>
+          <p class="text-sm text-gray-500 mt-1">March 2025</p>
+        </div>
+      </div>
+
+      <!-- Recent Transactions -->
+      <div class="bg-white rounded-lg shadow card mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Recent Transactions</h3>
+        </div>
+        <div class="px-6 py-4">
+          <ul class="divide-y divide-gray-200">
+            <li class="py-4 flex justify-between">
+              <div class="flex items-center">
+                <div class="bg-blue-100 rounded-full p-2 mr-4">
+                  <svg class="h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-900">University Tuition</p>
+                  <p class="text-sm text-gray-500">Mar 28, 2025</p>
+                </div>
+              </div>
+              <p class="text-sm font-medium text-red-500">-$850.00</p>
+            </li>
+            <li class="py-4 flex justify-between">
+              <div class="flex items-center">
+                <div class="bg-green-100 rounded-full p-2 mr-4">
+                  <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-900">Part-time Job Salary</p>
+                  <p class="text-sm text-gray-500">Mar 25, 2025</p>
+                </div>
+              </div>
+              <p class="text-sm font-medium text-green-500">+$450.00</p>
+            </li>
+            <li class="py-4 flex justify-between">
+              <div class="flex items-center">
+                <div class="bg-purple-100 rounded-full p-2 mr-4">
+                  <svg class="h-6 w-6 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-900">Grocery Shopping</p>
+                  <p class="text-sm text-gray-500">Mar 22, 2025</p>
+                </div>
+              </div>
+              <p class="text-sm font-medium text-red-500">-$125.50</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Health Check -->
+      <div class="bg-white rounded-lg shadow p-6 card">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">System Health Check</h3>
+        <div class="space-y-4">
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-gray-500">API Status</span>
+            <span id="api-status-detail" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              Checking...
+            </span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-gray-500">Database Connection</span>
+            <span id="db-status" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              Checking...
+            </span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-gray-500">Azure Storage</span>
+            <span id="storage-status" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              Checking...
+            </span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium text-gray-500">Redis Cache</span>
+            <span id="redis-status" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              Checking...
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Check API status
+    fetch('/api/health')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('api-status').textContent = 'API Connected';
+        document.getElementById('api-status').classList.add('bg-green-100', 'text-green-800');
+        document.getElementById('api-status').classList.remove('bg-white', 'text-blue-600');
+        
+        document.getElementById('api-status-detail').textContent = 'Online';
+        document.getElementById('api-status-detail').classList.add('bg-green-100', 'text-green-800');
+        document.getElementById('api-status-detail').classList.remove('bg-gray-100', 'text-gray-800');
+        
+        document.getElementById('db-status').textContent = data.database === 'configured' ? 'Connected' : 'Not Configured';
+        document.getElementById('db-status').classList.add(data.database === 'configured' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800');
+        document.getElementById('db-status').classList.remove('bg-gray-100', 'text-gray-800');
+        
+        document.getElementById('storage-status').textContent = data.storage === 'configured' ? 'Connected' : 'Not Configured';
+        document.getElementById('storage-status').classList.add(data.storage === 'configured' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800');
+        document.getElementById('storage-status').classList.remove('bg-gray-100', 'text-gray-800');
+        
+        document.getElementById('redis-status').textContent = data.redis === 'configured' ? 'Connected' : 'Not Configured';
+        document.getElementById('redis-status').classList.add(data.redis === 'configured' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800');
+        document.getElementById('redis-status').classList.remove('bg-gray-100', 'text-gray-800');
+      })
+      .catch(() => {
+        document.getElementById('api-status').textContent = 'API Disconnected';
+        document.getElementById('api-status').classList.add('bg-red-100', 'text-red-800');
+        document.getElementById('api-status').classList.remove('bg-white', 'text-blue-600');
+        
+        document.getElementById('api-status-detail').textContent = 'Offline';
+        document.getElementById('api-status-detail').classList.add('bg-red-100', 'text-red-800');
+        document.getElementById('api-status-detail').classList.remove('bg-gray-100', 'text-gray-800');
+      });
+  </script>
+</body>
+</html>`;
+    fs.writeFileSync(indexPath, indexHtml);
+    console.log('Created custom index.html');
+  }
+  
+  // Create styles.css if it doesn't exist
+  if (!fs.existsSync(cssPath)) {
+    const cssContent = `/* SmartSpend Custom Styles */
+.bg-gradient {
+  background: linear-gradient(to right, #0070f3, #00a2ff);
+}
+
+.card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.text-gradient {
+  background: linear-gradient(to right, #0070f3, #00a2ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}`;
+    fs.writeFileSync(cssPath, cssContent);
+    console.log('Created styles.css');
+  }
+  
+  // Create favicon.svg if it doesn't exist
+  if (!fs.existsSync(faviconPath)) {
+    const faviconContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#0070f3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+  <line x1="8" y1="21" x2="16" y2="21"></line>
+  <line x1="12" y1="17" x2="12" y2="21"></line>
+  <polyline points="2 8 12 13 22 8"></polyline>
+  <path d="M12 11v-4"></path>
+</svg>`;
+    fs.writeFileSync(faviconPath, faviconContent);
+    console.log('Created favicon.svg');
+  }
 
 // Static files - serve from client/dist
 app.use(express.static(staticDir));

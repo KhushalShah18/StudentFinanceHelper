@@ -104,7 +104,7 @@ app.use((req, res, next) => {
   const port = process.env.PORT || 8181;
   server.listen({
     port,
-    host: "20.48.204.10",
+    host: "0.0.0.0", // Use all available network interfaces
     reusePort: true,
   }, () => {
     log(`Now listening on: http://0.0.0.0:${port}`);
